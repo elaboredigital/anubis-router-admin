@@ -1,0 +1,15 @@
+{
+  "name": "anubis-router-admin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Painel administrativo do Anubis Router (admin.anubisrouter.com)",
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env server.mjs",
+    "start": "node --env-file-if-exists=.env server.mjs",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

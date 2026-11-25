@@ -1,0 +1,115 @@
+[
+  {
+    "id": "vscode-windsurf",
+    "name": "VS Code e Windsurf",
+    "category": "Editores",
+    "status": "em homologação",
+    "summary": "Extensão Anubis com chat próprio, streaming, contexto escolhido e aplicação de edições após aprovação.",
+    "limits": "Pacote VSIX gerado e disponível no painel; instalação e validação final nos editores ainda não foram homologadas. Windsurf usa o mesmo pacote do VS Code, sem garantia de paridade de recursos.",
+    "docs": "https://code.visualstudio.com/docs/editor/extension-marketplace",
+    "os": ["Windows", "macOS", "Linux"],
+    "steps": [
+      "Em Chaves de acesso, crie uma chave Anubis para o editor e copie o valor exibido uma única vez.",
+      "Baixe o VSIX na seção Chaves de acesso e instale-o pelo comando de instalação de extensões do editor.",
+      "Abra o chat Anubis na barra lateral, informe a chave e selecione um modelo habilitado no gateway."
+    ],
+    "snippets": {
+      "Instalação (VS Code CLI)": "code --install-extension anubis-router-vscode-2.0.0.vsix",
+      "Configuração no chat": "Base URL: <BASE_URL>\nChave Anubis: <SUA_CHAVE_ANUBIS>\nA chave fica no armazenamento de segredos do editor e nunca é enviada ao código do projeto."
+    }
+  },
+  {
+    "id": "claude-code",
+    "name": "Claude Code",
+    "category": "Agentes de terminal",
+    "status": "em homologação",
+    "summary": "Agente de terminal da Anthropic; o gateway expõe um endpoint compatível com o formato de mensagens.",
+    "limits": "Compatibilidade de formato não homologada com a versão atual do Claude Code. Ferramentas, sistema de arquivos e permissões do agente não são gerenciadas pelo Anubis.",
+    "docs": "https://docs.anthropic.com/en/docs/claude-code/setup",
+    "os": ["Windows", "macOS", "Linux"],
+    "steps": [
+      "Crie uma chave Anubis em Chaves de acesso; não use a chave administrativa do painel.",
+      "Configure o agente para apontar a base URL do gateway e use uma rota habilitada para o modelo desejado.",
+      "Faça uma chamada de teste e confira em Modelos se o uso foi observado antes de adotar a ferramenta."
+    ],
+    "snippets": {
+      "Variáveis de ambiente": "BASE_URL=<BASE_URL>\nAPI_KEY=<SUA_CHAVE_ANUBIS>\nMODEL=<ID_DO_MODELO_NO_ANUBIS>",
+      "Teste HTTP": "curl -sS <BASE_URL>/models -H \"Authorization: Bearer <SUA_CHAVE_ANUBIS>\""
+    }
+  },
+  {
+    "id": "codex",
+    "name": "Codex",
+    "category": "Agentes de terminal",
+    "status": "planejado",
+    "summary": "Agente de terminal da OpenAI; o gateway já oferece endpoints no formato OpenAI, mas a integração não foi validada.",
+    "limits": "Sem homologação. Não há suporte a fluxos específicos do produto, como login por conta OpenAI ou ferramentas nativas.",
+    "docs": "https://platform.openai.com/docs/overview",
+    "os": ["macOS", "Linux"],
+    "steps": [
+      "Crie uma chave Anubis exclusiva para o agente em Chaves de acesso.",
+      "Aponte a base URL e o modelo para um ID habilitado no gateway.",
+      "Valide o fluxo com uma chamada curta antes de usar a ferramenta em produção."
+    ],
+    "snippets": {
+      "Variáveis de ambiente": "OPENAI_BASE_URL=<BASE_URL>\nOPENAI_API_KEY=<SUA_CHAVE_ANUBIS>\nOPENAI_MODEL=<ID_DO_MODELO_NO_ANUBIS>"
+    }
+  },
+  {
+    "id": "cursor",
+    "name": "Cursor",
+    "category": "Editores",
+    "status": "planejado",
+    "summary": "Editor com suporte a APIs compatíveis com OpenAI; integração ainda não testada.",
+    "limits": "Sem homologação. Antes de usar, confirme na versão atual do editor quais campos de base URL e chave são aceitos.",
+    "docs": "https://docs.cursor.com/",
+    "os": ["Windows", "macOS", "Linux"],
+    "steps": [
+      "Crie uma chave Anubis em Chaves de acesso e escolha um modelo habilitado.",
+      "Informe a base URL do gateway nas configurações de modelo compatível do editor.",
+      "Envie uma mensagem curta de teste e verifique o uso observado no painel."
+    ],
+    "snippets": {
+      "Configuração esperada": "Base URL: <BASE_URL>\nChave API: <SUA_CHAVE_ANUBIS>\nModelo: <ID_DO_MODELO_NO_ANUBIS>"
+    }
+  },
+  {
+    "id": "n8n",
+    "name": "n8n",
+    "category": "Automação",
+    "status": "em homologação",
+    "summary": "Node de comunidade Anubis Router com credencial própria, modelos listados pelo gateway e mensagem de texto. Pacote desenvolvido localmente, ainda não instalado nem homologado no n8n.",
+    "limits": "O pacote em n8n/ não foi publicado no npm nem testado em n8n Cloud ou self-hosted; não prometa instalação disponível. Streaming, anexos, ferramentas e faturamento não estão implementados. HTTP Request continua como alternativa genérica, não como substituto do conector.",
+    "docs": "https://docs.n8n.io/integrations/community-nodes/using-community-nodes/",
+    "os": ["Windows", "macOS", "Linux"],
+    "steps": [
+      "Crie uma chave Anubis em Chaves de acesso no painel e deixe-a guardada como credencial do n8n, nunca no corpo da requisição.",
+      "Instale o pacote local n8n-nodes-anubis-router em uma instância self-hosted e crie a credencial Anubis Router API com a URL base do gateway; o teste da credencial consulta os modelos sem inferência.",
+      "Importe examples/chamada-simples.json, selecione o modelo listado e execute com dados sem segredo; confira reply, uso e se o modelo efetivo foi confirmado.",
+      "Acompanhe o uso por chave no painel. Erros 401/402/404/429/5xx são explicados pelo node, e não há retentativa automática: reexecutar depois de um efeito externo pode gerar nova cobrança."
+    ],
+    "snippets": {
+      "Node Anubis Router (campos)": "Operação: Enviar mensagem\nCredencial: Anubis Router API (URL base: <BASE_URL>, Chave Anubis: <SUA_CHAVE_ANUBIS>)\nModelo: <ID_DO_MODELO_NO_ANUBIS>\nMensagem: Olá",
+      "HTTP Request (alternativa genérica)": "Method: POST\nURL: <BASE_URL>/v1/chat/completions\nAuthentication: Generic Credential Type > Bearer Auth\nBearer Token: <SUA_CHAVE_ANUBIS>\nBody (JSON): {\"model\":\"<ID_DO_MODELO_NO_ANUBIS>\",\"messages\":[{\"role\":\"user\",\"content\":\"Olá\"}]}"
+    }
+  },
+  {
+    "id": "sdk-http",
+    "name": "SDKs e HTTP",
+    "category": "SDKs",
+    "status": "disponível",
+    "summary": "Clientes compatíveis com o formato OpenAI podem chamar o gateway diretamente pela base URL.",
+    "limits": "Roteamento, chaves e respostas em streaming funcionam; cobrança, cota por chave e faturamento não estão implementados. Tokens informados pelo fornecedor podem ser parciais.",
+    "docs": "https://platform.openai.com/docs/api-reference/chat/create",
+    "os": ["Windows", "macOS", "Linux"],
+    "steps": [
+      "Crie uma chave Anubis em Chaves de acesso e copie o valor exibido uma única vez.",
+      "Configure o cliente com a base URL do gateway e a chave como Bearer; use um modelo habilitado em Rotas.",
+      "Faça uma chamada de teste e confirme em Chaves de acesso que tokens e gasto estimado apareceram."
+    ],
+    "snippets": {
+      "cURL": "curl -sS <BASE_URL>/chat/completions \\\n  -H \"Authorization: Bearer <SUA_CHAVE_ANUBIS>\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"model\":\"<ID_DO_MODELO_NO_ANUBIS>\",\"messages\":[{\"role\":\"user\",\"content\":\"Olá\"}]}'",
+      "JavaScript": "const response = await fetch('<BASE_URL>/chat/completions', {\n  method: 'POST',\n  headers: { authorization: 'Bearer <SUA_CHAVE_ANUBIS>', 'content-type': 'application/json' },\n  body: JSON.stringify({ model: '<ID_DO_MODELO_NO_ANUBIS>', messages: [{ role: 'user', content: 'Olá' }] })\n});"
+    }
+  }
+]
