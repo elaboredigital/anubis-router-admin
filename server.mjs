@@ -29,6 +29,7 @@ function send(res, status, body, type, head = false) {
     'cache-control': 'no-store',
     'content-security-policy': csp,
     'x-content-type-options': 'nosniff',
+    'x-robots-tag': 'noindex, nofollow',
   });
   res.end(head ? undefined : body);
 }
@@ -38,6 +39,11 @@ http.createServer(async (req, res) => {
   let pathname;
   try { pathname = decodeURIComponent(new URL(req.url, `http://${req.headers.host || 'localhost'}`).pathname); }
   catch { return send(res, 400, 'URL inválida', 'text/plain; charset=utf-8'); }
+
+  // O painel administrativo não deve ser indexado por buscadores.
+  if (pathname === '/robots.txt') {
+    return send(res, 200, 'User-agent: *\nDisallow: /\n', 'text/plain; charset=utf-8', req.method === 'HEAD');
+  }
 
   if (pathname === '/config.js') {
     return send(res, 200, `window.ANUBIS_API_URL = ${JSON.stringify(apiUrl)};\n`, mime['.js'], req.method === 'HEAD');

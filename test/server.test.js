@@ -33,6 +33,12 @@ test('painel admin serve o SPA e aponta para a API configurada', async t => {
   assert.match(html, /data-nav="users"/);
   assert.match(html, /id="admin-key"/);
   assert.match(html, /\/config\.js/);
+  assert.match(html, /<meta name="robots" content="noindex, nofollow">/);
+  assert.equal(users.headers.get('x-robots-tag'), 'noindex, nofollow');
+
+  const robots = await fetch(`${base}/robots.txt`);
+  assert.equal(robots.status, 200);
+  assert.match(await robots.text(), /Disallow: \//);
 
   assert.equal((await fetch(`${base}/server.mjs`)).status, 404);
   assert.equal((await fetch(`${base}/package.json`)).status, 404);
