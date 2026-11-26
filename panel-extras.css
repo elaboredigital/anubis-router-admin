@@ -94,3 +94,10 @@ body.client-mode .sidebar .nav-item[data-nav="referrals"]{display:none}
 .mp-suppliers{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:3px;font-size:11px}.mp-suppliers li{display:flex;gap:8px;justify-content:space-between}.mp-suppliers small{color:var(--muted)}
 .mp-rule{display:block;color:var(--muted);font-size:11px;margin-top:3px}
 .mp-edit summary{cursor:pointer;color:var(--accent);white-space:nowrap}.mp-edit form{display:grid;grid-template-columns:repeat(2,minmax(110px,1fr));gap:8px;margin-top:10px;min-width:260px}.mp-edit label{display:grid;gap:4px;font-size:11px;color:var(--muted)}.mp-edit .form-message{grid-column:1/-1}
+
+/* Recargas */
+.nav-count{margin-left:auto;min-width:20px;padding:0 6px;border-radius:999px;background:#f59e0b;color:#111;font-size:11px;font-weight:700;text-align:center;line-height:18px}
+.tr-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.tr-actions input{min-width:170px;flex:1}.tr-actions .form-message{flex-basis:100%;margin:0}
+.tr-status.pending{color:#fbbf24}.tr-status.approved{color:#34d399}.tr-status.rejected{color:#f87171}
+.tr-table td{vertical-align:middle;font-variant-numeric:tabular-nums}
+.tr-actions .form-message:empty,#tr-message:empty{display:none}.tr-actions button{min-height:34px}

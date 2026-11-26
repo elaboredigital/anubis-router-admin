@@ -102,7 +102,9 @@ function renderPlans(report) {
     const row = el('div', 'plan-option');
     const info = el('div');
     info.append(el('strong', '', plan.name));
-    const detail = `${limitText(plan.monthlyRequests)} requisições/mês · ${limitText(plan.monthlyTokens)} tokens/mês · ${limitText(plan.dailyTokens)} tokens/dia · ${plan.models.length ? `${plan.models.length} modelo(s)` : 'nenhum modelo'}`;
+    const detail = plan.kind === 'payg' && !plan.models.length
+      ? 'Pré-pago: todos os modelos, cada chamada desconta do saldo'
+      : `${limitText(plan.monthlyRequests)} requisições/mês · ${limitText(plan.monthlyTokens)} tokens/mês · ${limitText(plan.dailyTokens)} tokens/dia · ${plan.models.length ? `${plan.models.length} modelo(s)` : 'nenhum modelo'}`;
     info.append(el('small', '', detail));
     const button = el('button', 'secondary', plan.id === report.account.planId ? 'Plano atual' : 'Selecionar');
     button.disabled = plan.id === report.account.planId;
