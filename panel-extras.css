@@ -101,3 +101,4 @@ body.client-mode .sidebar .nav-item[data-nav="referrals"]{display:none}
 .tr-status.pending{color:#fbbf24}.tr-status.approved{color:#34d399}.tr-status.rejected{color:#f87171}
 .tr-table td{vertical-align:middle;font-variant-numeric:tabular-nums}
 .tr-actions .form-message:empty,#tr-message:empty{display:none}.tr-actions button{min-height:34px}
+.mp-groups-panel{margin-top:20px}.mp-groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;margin-top:12px}.mp-group{border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:var(--surface)}.mp-group-title strong{display:block}.mp-group-hint{font-size:11px;margin:8px 0 0}

@@ -105,10 +105,52 @@
     if (!list.length) { const tr = make('tr'); const td = make('td', 'muted', 'Nenhum modelo com esse filtro.'); td.colSpan = 7; tr.append(td); body.append(tr); }
   }
 
+  // Mesmo modelo publicado com IDs diferentes, um por fornecedor (ex.: anthropic/claude-haiku-5.5 e anthropic-claude-haiku-5.5).
+  // Unir sob um único ID dá mais fornecedores ao modelo e failover entre eles; a sugestão não altera nada sozinha.
+  const VENDOR_PREFIXES = ['anubis-', 'anthropic-', 'openai-', 'google-', 'x-ai-', 'xai-', 'deepseek-', 'moonshotai-', 'moonshot-', 'z-ai-', 'zai-', 'qwen-', 'meta-llama-', 'meta-', 'mistralai-', 'mistral-', 'minimax-', 'xiaomi-', 'inception-'];
+  function canonical(id) {
+    let key = id.toLowerCase().replace(/[/:]/g, '-').replace(/\./g, '-');
+    for (let changed = true; changed;) {
+      changed = false;
+      for (const prefix of VENDOR_PREFIXES) if (key.startsWith(prefix) && key.length > prefix.length + 2) { key = key.slice(prefix.length); changed = true; }
+    }
+    return key;
+  }
+  function renderGroups() {
+    const box = byId('mp-groups');
+    if (!box || !data) return;
+    const groups = new Map();
+    for (const model of data.models) {
+      const key = canonical(model.id);
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(model);
+    }
+    const list = [...groups.values()].filter(items => items.length > 1)
+      .sort((a, b) => b.length - a.length || a[0].name.localeCompare(b[0].name, 'pt-BR', { numeric: true }));
+    byId('mp-groups-count').textContent = list.length ? `${list.length} modelos aparecem com mais de um ID.` : 'Nenhum modelo duplicado encontrado.';
+    box.replaceChildren();
+    for (const items of list.slice(0, 60)) {
+      // Sugere manter o ID no formato fabricante/modelo, que é o padrão da documentação.
+      const keep = items.find(item => item.id.includes('/')) || items[0];
+      const row = make('div', 'mp-group');
+      const title = make('div', 'mp-group-title');
+      title.append(make('strong', '', keep.name), make('span', 'model-analytics-id', `manter ${keep.id}`));
+      const ids = make('ul', 'mp-suppliers');
+      for (const item of items) {
+        const li = make('li');
+        li.append(make('span', '', item.id), make('small', '', `${item.suppliers.map(s => s.connectionName || s.provider).join(', ')} · ${pair(item.averageCost)}`));
+        ids.append(li);
+      }
+      const hint = make('p', 'muted mp-group-hint', `Em Rotas, crie rotas com o ID ${keep.id} apontando para as conexões dos outros IDs; depois desative os IDs duplicados.`);
+      row.append(title, ids, hint);
+      box.append(row);
+    }
+  }
+
   async function load(force = false) {
     if (loading || (data && !force)) return;
     loading = true; byId('mp-message').textContent = data ? '' : 'Carregando preços.';
-    try { data = await api('/admin/model-prices'); byId('mp-message').textContent = ''; render(); }
+    try { data = await api('/admin/model-prices'); byId('mp-message').textContent = ''; render(); renderGroups(); }
     catch (error) { byId('mp-message').textContent = error.message; }
     finally { loading = false; }
   }
