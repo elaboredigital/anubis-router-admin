@@ -575,13 +575,13 @@ function renderUsers() {
   if (!(usersData?.users || []).some(user => user.id === selectedUserId)) selectedUserId = usersData?.users?.[0]?.id || '';
   renderUserList(); renderUserDetail();
 }
-const pagePaths = { home: '/', models: '/models', providers: '/providers', routes: '/routes', plans: '/plans', ledger: '/ledger', topup: '/topup', keys: '/keys', users: '/users', stats: '/stats', 'global-stats': '/global-stats', 'client-home': '/client-home', chat: '/chat', 'client-area': '/minha-conta', referrals: '/referrals', 'referrals-client': '/indicacoes', system: '/system', connect: '/connect' };
+const pagePaths = { home: '/', models: '/models', 'model-prices': '/model-prices', providers: '/providers', routes: '/routes', plans: '/plans', ledger: '/ledger', topup: '/topup', keys: '/keys', users: '/users', stats: '/stats', 'global-stats': '/global-stats', 'client-home': '/client-home', chat: '/chat', 'client-area': '/minha-conta', referrals: '/referrals', 'referrals-client': '/indicacoes', system: '/system', connect: '/connect' };
 function showPage(name, navigate = true) {
   if (!pagePaths[name]) name = 'home';
   if (navigate && location.pathname !== pagePaths[name]) history.pushState({}, '', pagePaths[name]);
   document.querySelectorAll('[data-page]').forEach(el => { el.hidden = el.dataset.page !== name; });
   document.querySelectorAll('[data-nav]').forEach(el => { el.classList.toggle('active', el.dataset.nav === name); });
-  $('page-name').textContent = ({ home: 'Dashboard', models: 'Modelos', providers: 'Fornecedores', routes: 'Rotas', plans: 'Planos e limites', ledger: 'Razão financeira', topup: 'Top up PAYG', keys: 'Chaves de acesso', users: 'Usuários', stats: 'Estatísticas', 'global-stats': 'Estatísticas globais', 'client-home': 'Resumo do cliente', chat: 'Chat com IA', 'client-area': 'Área do cliente', referrals: 'Indicações', 'referrals-client': 'Minhas indicações', system: 'Sistema', connect: 'Conectar ferramenta' })[name];
+  $('page-name').textContent = ({ home: 'Dashboard', models: 'Modelos', 'model-prices': 'Preços por modelo', providers: 'Fornecedores', routes: 'Rotas', plans: 'Planos e limites', ledger: 'Razão financeira', topup: 'Top up PAYG', keys: 'Chaves de acesso', users: 'Usuários', stats: 'Estatísticas', 'global-stats': 'Estatísticas globais', 'client-home': 'Resumo do cliente', chat: 'Chat com IA', 'client-area': 'Área do cliente', referrals: 'Indicações', 'referrals-client': 'Minhas indicações', system: 'Sistema', connect: 'Conectar ferramenta' })[name];
 }
 function localDateInput(iso) {
   if (!iso) return ''; const date = new Date(iso); if (Number.isNaN(date.getTime())) return '';
