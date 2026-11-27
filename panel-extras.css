@@ -102,3 +102,21 @@ body.client-mode .sidebar .nav-item[data-nav="referrals"]{display:none}
 .tr-table td{vertical-align:middle;font-variant-numeric:tabular-nums}
 .tr-actions .form-message:empty,#tr-message:empty{display:none}.tr-actions button{min-height:34px}
 .mp-groups-panel{margin-top:20px}.mp-groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;margin-top:12px}.mp-group{border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:var(--surface)}.mp-group-title strong{display:block}.mp-group-hint{font-size:11px;margin:8px 0 0}
+/* Login do admin com usuário e senha; chave como alternativa recolhida. */
+.login-key{margin:4px 0 14px;color:var(--muted);font-size:13px}
+.login-key summary{cursor:pointer;margin-bottom:8px}
+.login-key small{display:block;margin-top:6px}
+.password-dialog{width:min(420px,calc(100% - 32px));border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text);padding:22px}
+.password-dialog::backdrop{background:rgba(0,0,0,.6)}
+.password-dialog h2{margin:0 0 6px;font-size:18px}
+.password-dialog label{display:block;margin:12px 0 6px}
+.password-dialog input{width:100%}
+.password-actions{display:flex;gap:8px;margin-top:16px}
+/* Cotação do dólar no financeiro por modelo */
+.fx-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:0 0 14px;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.fx-rate strong{font-variant-numeric:tabular-nums}
+.fx-rate small{display:block;color:var(--muted);font-size:11px}
+.fx-mode{display:inline-flex;align-items:center;gap:6px;margin:0}
+#fx-manual{width:110px}
+.fin-summary{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media(max-width:1100px){.fin-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}

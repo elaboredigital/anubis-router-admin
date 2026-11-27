@@ -575,13 +575,13 @@ function renderUsers() {
   if (!(usersData?.users || []).some(user => user.id === selectedUserId)) selectedUserId = usersData?.users?.[0]?.id || '';
   renderUserList(); renderUserDetail();
 }
-const pagePaths = { home: '/', models: '/models', 'model-prices': '/model-prices', 'topup-requests': '/topup-requests', providers: '/providers', routes: '/routes', plans: '/plans', ledger: '/ledger', topup: '/topup', keys: '/keys', users: '/users', stats: '/stats', 'global-stats': '/global-stats', 'client-home': '/client-home', chat: '/chat', 'client-area': '/minha-conta', referrals: '/referrals', 'referrals-client': '/indicacoes', system: '/system', connect: '/connect' };
+const pagePaths = { home: '/', models: '/models', availability: '/availability', 'model-prices': '/model-prices', 'topup-requests': '/topup-requests', providers: '/providers', routes: '/routes', plans: '/plans', ledger: '/ledger', topup: '/topup', keys: '/keys', users: '/users', stats: '/stats', 'global-stats': '/global-stats', 'client-home': '/client-home', chat: '/chat', 'client-area': '/minha-conta', referrals: '/referrals', 'referrals-client': '/indicacoes', system: '/system', connect: '/connect' };
 function showPage(name, navigate = true) {
   if (!pagePaths[name]) name = 'home';
   if (navigate && location.pathname !== pagePaths[name]) history.pushState({}, '', pagePaths[name]);
   document.querySelectorAll('[data-page]').forEach(el => { el.hidden = el.dataset.page !== name; });
   document.querySelectorAll('[data-nav]').forEach(el => { el.classList.toggle('active', el.dataset.nav === name); });
-  $('page-name').textContent = ({ home: 'Dashboard', models: 'Modelos', 'model-prices': 'Preços por modelo', 'topup-requests': 'Recargas', providers: 'Fornecedores', routes: 'Rotas', plans: 'Planos e limites', ledger: 'Razão financeira', topup: 'Top up PAYG', keys: 'Chaves de acesso', users: 'Usuários', stats: 'Estatísticas', 'global-stats': 'Estatísticas globais', 'client-home': 'Resumo do cliente', chat: 'Chat com IA', 'client-area': 'Área do cliente', referrals: 'Indicações', 'referrals-client': 'Minhas indicações', system: 'Sistema', connect: 'Conectar ferramenta' })[name];
+  $('page-name').textContent = ({ home: 'Dashboard', models: 'Modelos', availability: 'Disponibilidade', 'model-prices': 'Preços por modelo', 'topup-requests': 'Recargas', providers: 'Fornecedores', routes: 'Rotas', plans: 'Planos e limites', ledger: 'Razão financeira', topup: 'Top up PAYG', keys: 'Chaves de acesso', users: 'Usuários', stats: 'Estatísticas', 'global-stats': 'Estatísticas globais', 'client-home': 'Resumo do cliente', chat: 'Chat com IA', 'client-area': 'Área do cliente', referrals: 'Indicações', 'referrals-client': 'Minhas indicações', system: 'Sistema', connect: 'Conectar ferramenta' })[name];
 }
 function localDateInput(iso) {
   if (!iso) return ''; const date = new Date(iso); if (Number.isNaN(date.getTime())) return '';
@@ -1107,7 +1107,22 @@ async function show() {
   renderRouteRelationships(routeResult);
   if (!currentProvider) await selectCatalogProvider(connections[0]?.provider || 'wusrouter');
 }
-$('login-form').addEventListener('submit', async e => { e.preventDefault(); adminKey = $('admin-key').value; $('login-error').textContent = ''; try { await show(); sessionStorage.setItem('anubis-admin', adminKey); $('admin-key').value = ''; } catch (error) { adminKey = ''; $('login-error').textContent = error.message; } });
+// Login por usuário e senha (sessão de 12 h); a chave administrativa continua aceita como alternativa de emergência.
+$('login-form').addEventListener('submit', async e => {
+  e.preventDefault(); $('login-error').textContent = '';
+  try {
+    const key = $('admin-key').value.trim();
+    if (key) adminKey = key;
+    else {
+      const response = await fetch(apiUrl('/admin/login'), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ username: $('admin-user').value, password: $('admin-password').value }) });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || 'Não foi possível entrar.');
+      adminKey = payload.token;
+    }
+    await show(); sessionStorage.setItem('anubis-admin', adminKey);
+    $('admin-key').value = ''; $('admin-password').value = '';
+  } catch (error) { adminKey = ''; $('login-error').textContent = error.message; }
+});
 $('provider-type').addEventListener('change', providerChanged);
 $('catalog-search').addEventListener('input', renderCatalog);
 $('catalog-state').addEventListener('change', renderCatalog);
@@ -1299,7 +1314,7 @@ $('connect-test').addEventListener('click', async () => {
   catch (error) { report.replaceChildren(); report.textContent = error.message; }
   finally { button.disabled = false; }
 });
-$('logout').addEventListener('click', () => { clearClientSession(true); sessionStorage.removeItem('anubis-admin'); adminKey = ''; usagePeriod = { from: '', to: '' }; statsPeriod = { from: '', to: '' }; globalPeriod = { from: '', to: '' }; statsKeyId = ''; clientHomeData = null; globalStatsData = null; modelAnalyticsData = null; selectedAnalyticsModel = ''; modelDetailRequest++; $('usage-from').value = ''; $('usage-to').value = ''; $('stats-from').value = ''; $('stats-to').value = ''; $('global-from').value = ''; $('global-to').value = ''; $('model-analytics-from').value = ''; $('model-analytics-to').value = ''; $('stats-message').textContent = ''; $('global-message').textContent = ''; $('model-analytics-message').textContent = ''; $('model-analytics-detail').hidden = true; $('model-analytics-list').replaceChildren(); $('model-analytics-users').replaceChildren(); $('client-home-message').textContent = ''; $('usage-show-resolved').checked = false; $('new-key').textContent = ''; $('provider-key').value = ''; editingConnectionId = ''; $('provider-form-title').textContent = 'Adicionar credencial'; $('provider-submit').textContent = 'Validar e salvar'; $('provider-cancel').hidden = true; $('extension-version').textContent = 'v—'; $('extension-message').textContent = ''; $('extension-list').replaceChildren(); $('connect-message').textContent = ''; $('connect-report').replaceChildren(); $('connect-report').hidden = true; extensionAvailable = false; document.body.classList.remove('client-mode'); $('dashboard').hidden = true; $('login').hidden = false; currentProvider = null; currentConnection = null; catalog = []; });
+$('logout').addEventListener('click', () => { if (adminKey.startsWith('anubis_adm_')) void fetch(apiUrl('/admin/logout'), { method: 'POST', headers: { authorization: `Bearer ${adminKey}`, 'content-type': 'application/json' }, body: '{}' }).catch(() => {}); clearClientSession(true); sessionStorage.removeItem('anubis-admin'); adminKey = ''; usagePeriod = { from: '', to: '' }; statsPeriod = { from: '', to: '' }; globalPeriod = { from: '', to: '' }; statsKeyId = ''; clientHomeData = null; globalStatsData = null; modelAnalyticsData = null; selectedAnalyticsModel = ''; modelDetailRequest++; $('usage-from').value = ''; $('usage-to').value = ''; $('stats-from').value = ''; $('stats-to').value = ''; $('global-from').value = ''; $('global-to').value = ''; $('model-analytics-from').value = ''; $('model-analytics-to').value = ''; $('stats-message').textContent = ''; $('global-message').textContent = ''; $('model-analytics-message').textContent = ''; $('model-analytics-detail').hidden = true; $('model-analytics-list').replaceChildren(); $('model-analytics-users').replaceChildren(); $('client-home-message').textContent = ''; $('usage-show-resolved').checked = false; $('new-key').textContent = ''; $('provider-key').value = ''; editingConnectionId = ''; $('provider-form-title').textContent = 'Adicionar credencial'; $('provider-submit').textContent = 'Validar e salvar'; $('provider-cancel').hidden = true; $('extension-version').textContent = 'v—'; $('extension-message').textContent = ''; $('extension-list').replaceChildren(); $('connect-message').textContent = ''; $('connect-report').replaceChildren(); $('connect-report').hidden = true; extensionAvailable = false; document.body.classList.remove('client-mode'); $('dashboard').hidden = true; $('login').hidden = false; currentProvider = null; currentConnection = null; catalog = []; });
 function renderPending(report) {
   const summary = report?.summary || {};
   const labels = { sem_desfecho: 'sem desfecho', falha_transporte: 'falha de transporte', erro_sem_status: 'erro sem status' };
@@ -1335,6 +1350,31 @@ function statsAmounts(items) {
 function statsMarginPercents(items) {
   if (!Array.isArray(items) || !items.length) return '—';
   return items.map(item => `${item.currency} ${item.marginPercent === null || item.marginPercent === undefined ? '—' : `${moneyText(item.marginPercent)}%`}`).join(' · ');
+}
+// Estimativa em reais: só para valores em USD, pela cotação do admin (automática ou manual).
+let fxRate = null;
+let fxRequested = false;
+function brlText(items) {
+  const usd = Array.isArray(items) ? items.find(item => item.currency === 'USD') : null;
+  if (!usd || !fxRate) return '—';
+  return `R$ ${(Number(usd.amount) * fxRate).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+function marginText(items) {
+  if (!Array.isArray(items) || !items.length) return '—';
+  return items.map(item => item.marginPercent === null || item.marginPercent === undefined ? '—' : `${item.marginPercent.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%`).join(' · ');
+}
+function renderFx(info) {
+  fxRate = info?.rate || null;
+  $('fx-rate').textContent = fxRate ? `US$ 1 = R$ ${fxRate.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}` : 'indisponível';
+  const when = info?.quotedAt || info?.fetchedAt;
+  $('fx-source').textContent = info?.source === 'manual' ? `fixada no admin${info.auto?.rate ? ` · automática agora R$ ${info.auto.rate.toLocaleString('pt-BR', { maximumFractionDigits: 4 })}` : ''}` : info?.sourceLabel ? `${info.sourceLabel}${when ? ` · ${new Date(when).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}` : ''}${info.stale ? ' · última conhecida' : ''}` : 'sem cotação: fixe uma manual';
+  const manual = info?.mode === 'manual';
+  for (const radio of document.querySelectorAll('[name="fx-mode"]')) radio.checked = radio.value === (manual ? 'manual' : 'auto');
+  $('fx-manual').disabled = !manual;
+  if (info?.manualRate && !$('fx-manual').value) $('fx-manual').value = String(info.manualRate).replace('.', ',');
+}
+async function loadFx() {
+  try { renderFx(await api('/admin/fx')); } catch (error) { renderFx(null); $('fx-message').textContent = error.message; }
 }
 function statsMargins(items) {
   if (!Array.isArray(items) || !items.length) return '—';
@@ -1503,10 +1543,12 @@ function renderModelAnalyticsDetail(model) {
     `${user.name || 'Chave removida'} · ${user.label || '—'}`,
     user.planName || 'Sem plano',
     statsCount(user.requests),
+    statsAmounts(user.settledCost),
     statsAmounts(user.spend),
     statsAmounts(user.profit),
-    statsMargins(user.margin),
-  ]), 6);
+    marginText(user.margin),
+    brlText(user.profit),
+  ]), 8);
   if (!payers.length) $('model-analytics-users').querySelector('td').textContent = 'Nenhum usuário com gasto liquidado no período.';
 }
 async function openModelAnalytics(model) {
@@ -1516,7 +1558,7 @@ async function openModelAnalytics(model) {
   $('model-analytics-detail-title').textContent = model;
   $('model-analytics-detail-message').textContent = 'Carregando detalhe...';
   $('model-analytics-admin').replaceChildren();
-  globalRows($('model-analytics-users'), [], 6);
+  globalRows($('model-analytics-users'), [], 8);
   try {
     const report = await api(`/admin/model-analytics${modelAnalyticsQuery(model)}`);
     if (request !== modelDetailRequest) return;
@@ -1529,14 +1571,18 @@ async function openModelAnalytics(model) {
 }
 function renderModelAnalytics(report) {
   modelAnalyticsData = report;
+  // Primeira renderização sem cotação: busca e redesenha uma vez com os valores em reais.
+  if (fxRate === null && !fxRequested) { fxRequested = true; void loadFx().then(() => { if (modelAnalyticsData) renderModelAnalytics(modelAnalyticsData); }); }
   const detail = $('model-analytics-detail');
   if (!report) {
     for (const id of ['model-analytics-spend', 'model-analytics-profit', 'model-analytics-margin', 'model-analytics-models-count', 'model-analytics-scope', 'model-analytics-period-summary']) $(id).textContent = '—';
     $('model-analytics-list').replaceChildren(); detail.hidden = true; return;
   }
+  $('model-analytics-cost').textContent = statsAmounts(report.totals?.settledCost);
   $('model-analytics-spend').textContent = statsAmounts(report.totals?.spend);
   $('model-analytics-profit').textContent = statsAmounts(report.totals?.profit);
-  $('model-analytics-margin').textContent = statsMarginPercents(report.totals?.margin);
+  for (const [id, field] of [['model-analytics-cost-brl', 'settledCost'], ['model-analytics-spend-brl', 'spend'], ['model-analytics-profit-brl', 'profit']]) $(id).textContent = brlText(report.totals?.[field]) === '—' ? 'sem estimativa em reais' : `≈ ${brlText(report.totals?.[field])}`;
+  $('model-analytics-margin').textContent = marginText(report.totals?.margin);
   $('model-analytics-models-count').textContent = `${statsCount(report.models?.length)} modelo(s) observado(s)`;
   $('model-analytics-scope').textContent = report.scope === 'last_10000_requests' ? '10.000' : report.scope || '—';
   $('model-analytics-period-summary').textContent = `Período ${report.period?.from} → ${report.period?.to}${report.period?.clamped ? ' (limitado a 366 dias)' : ''}${report.totals?.unpriced ? ` · ${statsCount(report.totals.unpriced)} conclusão(ões) sem valor liquidado` : ''} · gerado em ${report.generatedAt}`;
@@ -1544,7 +1590,7 @@ function renderModelAnalytics(report) {
   const list = $('model-analytics-list'); list.replaceChildren();
   if (!models.length) {
     const tr = document.createElement('tr'); const td = document.createElement('td');
-    td.colSpan = 6; td.className = 'muted'; td.textContent = 'Nenhum modelo com uso concluído no período.'; tr.append(td); list.append(tr);
+    td.colSpan = 8; td.className = 'muted'; td.textContent = 'Nenhum modelo com uso concluído no período.'; tr.append(td); list.append(tr);
     selectedAnalyticsModel = ''; modelDetailRequest++; detail.hidden = true; return;
   }
   if (selectedAnalyticsModel && !models.some(item => item.model === selectedAnalyticsModel)) {
@@ -1559,14 +1605,25 @@ function renderModelAnalytics(report) {
     modelCell.append(button);
     if (item.label && item.label !== item.model) { const id = document.createElement('small'); id.className = 'model-analytics-id'; id.textContent = item.model; modelCell.append(id); }
     tr.append(modelCell);
-    for (const value of [statsCount(item.requests), statsAmounts(item.spend), statsAmounts(item.profit), statsMargins(item.margin), analyticsUtc(item.lastAt)]) {
+    for (const value of [statsCount(item.requests), statsAmounts(item.settledCost), statsAmounts(item.spend), statsAmounts(item.profit), marginText(item.margin), brlText(item.profit), analyticsUtc(item.lastAt)]) {
       const td = document.createElement('td'); td.className = 'global-number'; td.textContent = value; tr.append(td);
     }
     list.append(tr);
   }
   if (selectedAnalyticsModel) void openModelAnalytics(selectedAnalyticsModel);
 }
+$('fx-form').addEventListener('change', event => { if (event.target.name === 'fx-mode') $('fx-manual').disabled = event.target.value !== 'manual'; });
+$('fx-form').addEventListener('submit', async event => {
+  event.preventDefault(); $('fx-message').textContent = 'Salvando...';
+  try {
+    const mode = document.querySelector('[name="fx-mode"]:checked').value;
+    renderFx(await post('/admin/fx', { mode, manualRate: $('fx-manual').value.trim() }));
+    $('fx-message').textContent = 'Cotação salva.';
+    renderModelAnalytics(modelAnalyticsData);
+  } catch (error) { $('fx-message').textContent = error.message; }
+});
 async function refreshModelAnalytics() {
+  if (fxRate === null) await loadFx();
   $('model-analytics-message').textContent = '';
   try { renderModelAnalytics(await api(`/admin/model-analytics${globalQuery()}`)); }
   catch (error) { renderModelAnalytics(null); $('model-analytics-message').textContent = error.message; }
