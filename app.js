@@ -278,7 +278,7 @@ function renderTopup() {
   select.onchange = updateCurrency; updateCurrency();
 
   const list = $('topup-wallet-list'); list.replaceChildren();
-  if (!wallets.length) { const empty = document.createElement('p'); empty.className = 'muted'; empty.textContent = 'Nenhuma carteira ainda. Lance um crédito simulado para qualquer chave ativa.'; list.append(empty); }
+  if (!wallets.length) { const empty = document.createElement('p'); empty.className = 'muted'; empty.textContent = 'Nenhuma carteira ainda. Lance um crédito manual para qualquer chave ativa.'; list.append(empty); }
   for (const wallet of wallets) {
     const row = document.createElement('div'); row.className = 'plan-row';
     const info = document.createElement('div'); info.className = 'plan-info';
@@ -1153,7 +1153,7 @@ $('topup-form').addEventListener('submit', async e => {
     const result = await post('/admin/topup', { keyId, amount: $('topup-amount').value, currency, note: $('topup-note').value, idempotencyKey });
     $('topup-amount').value = ''; $('topup-note').value = '';
     const wallet = result.wallet;
-    $('topup-message').textContent = `${result.duplicate ? 'Recarga já registrada' : 'Crédito simulado registrado'}: ${result.topup.currency} ${moneyText(result.topup.amount)}${wallet ? ` · saldo ${moneyText(wallet.balance)}` : ''}.`;
+    $('topup-message').textContent = `${result.duplicate ? 'Recarga já registrada' : 'Crédito registrado'}: ${result.topup.currency} ${moneyText(result.topup.amount)}${wallet ? ` · saldo ${moneyText(wallet.balance)}` : ''}.`;
     await show();
   } catch (error) { $('topup-message').textContent = error.message; }
   finally { button.disabled = false; }
@@ -1975,7 +1975,7 @@ $('user-topup-form').addEventListener('submit', async e => {
     const idempotencyKey = globalThis.crypto?.randomUUID?.() || `user-topup-${Date.now()}-${Math.random().toString(36).slice(2)}`;
     const result = await post('/admin/topup', { keyId, amount: $('user-topup-amount').value, currency, note: $('user-topup-note').value, idempotencyKey });
     $('user-topup-amount').value = ''; $('user-topup-note').value = '';
-    $('user-topup-message').textContent = `${result.duplicate ? 'Recarga já registrada' : 'Crédito simulado registrado'}: ${result.topup.currency} ${moneyText(result.topup.amount)}${result.wallet ? ` · saldo ${moneyText(result.wallet.balance)}` : ''}. Nenhum pagamento foi realizado.`;
+    $('user-topup-message').textContent = `${result.duplicate ? 'Recarga já registrada' : 'Crédito registrado'}: ${result.topup.currency} ${moneyText(result.topup.amount)}${result.wallet ? ` · saldo ${moneyText(result.wallet.balance)}` : ''}. Nenhum pagamento foi realizado.`;
     await show();
   } catch (error) { $('user-topup-message').textContent = error.message; }
   finally { button.disabled = false; }
