@@ -1,5 +1,7 @@
 // Formatação compartilhada do catálogo: famílias, preço e ordem. Usada pelo /models (site) e pela
 // página Disponibilidade do admin. admin/model-format.js é cópia idêntica deste arquivo (o teste confere).
+// Idioma da página (site); no admin não há dicionário e fica em português.
+const i18n = globalThis.anubisI18n || { t: s => s, locale: 'pt-BR' };
 export const FAMILIES = {
   anthropic: { label: 'Anthropic', color: '#d97757', mark: 'A' },
   openai: { label: 'OpenAI', color: '#121212', mark: 'O' },
@@ -15,7 +17,7 @@ export const FAMILIES = {
   xiaomi: { label: 'Xiaomi', color: '#ff6900', mark: 'X' },
   inception: { label: 'Inception', color: '#7c3aed', mark: 'I' },
   agnes: { label: 'Agnes AI', color: '#0891b2', mark: 'A' },
-  other: { label: 'Outros', color: '#6b6759', mark: '•' },
+  other: { label: i18n.t('Outros'), color: '#6b6759', mark: '•' },
 };
 export const family = id => FAMILIES[id] || FAMILIES.other;
 export const FAMILY_ORDER = Object.keys(FAMILIES);
@@ -25,17 +27,17 @@ export function money(value) {
   if (value === null || value === undefined) return null;
   const number = Number(value);
   if (!Number.isFinite(number)) return null;
-  if (number === 0) return 'Grátis';
+  if (number === 0) return i18n.t('Grátis');
   if (Number.isInteger(number)) return `$${number}`;
   if (number >= 0.1) return `$${number.toFixed(2)}`;
   return `$${Number(number.toPrecision(2))}`;
 }
-export const context = tokens => !tokens ? '—' : tokens >= 1e6 ? `${(tokens / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 2 })}M` : `${Math.round(tokens / 1e3)}K`;
+export const context = tokens => !tokens ? '—' : tokens >= 1e6 ? `${(tokens / 1e6).toLocaleString(i18n.locale, { maximumFractionDigits: 2 })}M` : `${Math.round(tokens / 1e3)}K`;
 export const isFree = m => !!m.price && (m.price.billingType === 'request' ? Number(m.price.request) === 0 : Number(m.price.input) === 0 && Number(m.price.output) === 0);
 export const bestDiscount = m => Math.max(0, ...Object.values(m.originalPrice?.discount || {}).filter(v => typeof v === 'number'));
 export const mainPrice = m => !m.price ? Infinity : m.price.billingType === 'request' ? Number(m.price.request) * 1000 : Number(m.price.input || 0) + Number(m.price.output || 0);
 
-export const byFamily = (a, b) => FAMILY_ORDER.indexOf(a.family) - FAMILY_ORDER.indexOf(b.family) || a.name.localeCompare(b.name, 'pt-BR', { numeric: true });
+export const byFamily = (a, b) => FAMILY_ORDER.indexOf(a.family) - FAMILY_ORDER.indexOf(b.family) || a.name.localeCompare(b.name, i18n.locale, { numeric: true });
 const sorters = {
   family: byFamily,
   price_asc: (a, b) => mainPrice(a) - mainPrice(b) || byFamily(a, b),
