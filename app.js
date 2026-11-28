@@ -31,8 +31,12 @@ let extensionAvailable = false;
 const syncedProviderUsage = new Map();
 const apiBase = (window.ANUBIS_API_URL || '').replace(/\/+$/, '');
 const apiUrl = url => `${apiBase}${url}`;
+// Topo do painel: qual API este painel usa (local ou produção), para não haver dúvida antes de alterar dados.
+try { $('api-host').textContent = apiBase ? new URL(apiBase).host : location.host; } catch { /* URL inválida: fica o texto padrão */ }
 $('base-url').textContent = `${apiBase || location.origin}/v1`;
 document.querySelector('.url').textContent = `${apiBase || location.origin}/v1`;
+/** Data e hora legíveis em UTC ("29 de out. de 2026, 00:06 UTC"); os filtros do painel são todos em UTC. */
+const fmtUtc = value => { const date = new Date(value); return value && !Number.isNaN(date.getTime()) ? `${date.toLocaleString('pt-BR', { timeZone: 'UTC', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })} UTC` : '—'; };
 async function api(url, options = {}) {
   const response = await fetch(apiUrl(url), { ...options, headers: { authorization: `Bearer ${adminKey}`, ...(options.headers || {}) } });
   const result = await response.json();
@@ -581,7 +585,9 @@ function showPage(name, navigate = true) {
   if (navigate && location.pathname !== pagePaths[name]) history.pushState({}, '', pagePaths[name]);
   document.querySelectorAll('[data-page]').forEach(el => { el.hidden = el.dataset.page !== name; });
   document.querySelectorAll('[data-nav]').forEach(el => { el.classList.toggle('active', el.dataset.nav === name); });
-  $('page-name').textContent = ({ home: 'Dashboard', models: 'Modelos', availability: 'Disponibilidade', 'model-prices': 'Preços por modelo', 'topup-requests': 'Recargas', providers: 'Fornecedores', routes: 'Rotas', plans: 'Planos e limites', ledger: 'Razão financeira', topup: 'Top up PAYG', keys: 'Chaves de acesso', users: 'Usuários', stats: 'Estatísticas', 'global-stats': 'Estatísticas globais', 'client-home': 'Resumo do cliente', chat: 'Chat com IA', 'client-area': 'Área do cliente', referrals: 'Indicações', 'referrals-client': 'Minhas indicações', system: 'Sistema', connect: 'Conectar ferramenta' })[name];
+  // O título do topo é o mesmo texto do menu, para os dois nunca divergirem.
+  const label = document.querySelector(`[data-nav="${name}"] .nav-text`)?.textContent || '';
+  $('page-name').textContent = label; document.title = label ? `${label} · Anubis Router` : 'Anubis Router — Administração';
 }
 function localDateInput(iso) {
   if (!iso) return ''; const date = new Date(iso); if (Number.isNaN(date.getTime())) return '';
@@ -1535,10 +1541,10 @@ function renderModelAnalyticsDetail(model) {
   add('Fornecedores', (model.providers || []).join(', ') || '—');
   add('Modelos de origem', (model.upstreamModels || []).join(', ') || '—');
   add('Rotas locais', `${statsCount(model.enabledRoutes)} ativa(s) de ${statsCount(model.routes)}`);
-  add('Período', period.from && period.to ? `${period.from} → ${period.to}` : '—');
+  add('Período', period.from && period.to ? `${fmtUtc(period.from)} → ${fmtUtc(period.to)}` : '—');
   add('Escopo', modelAnalyticsData?.scope || '—');
   add('Admin', modelAnalyticsData?.admin ? `${modelAnalyticsData.admin.configured ? 'chave configurada' : 'sem chave'} · ${statsCount(modelAnalyticsData.admin.clientSessions)} sessão(ões) · ${statsCount(modelAnalyticsData.admin.keys)} chave(s), ${statsCount(modelAnalyticsData.admin.activeKeys)} ativa(s)` : '—');
-  add('Gerado em', modelAnalyticsData?.generatedAt || '—');
+  add('Gerado em', fmtUtc(modelAnalyticsData?.generatedAt));
   globalRows($('model-analytics-users'), payers.map(user => [
     `${user.name || 'Chave removida'} · ${user.label || '—'}`,
     user.planName || 'Sem plano',
@@ -1585,7 +1591,7 @@ function renderModelAnalytics(report) {
   $('model-analytics-margin').textContent = marginText(report.totals?.margin);
   $('model-analytics-models-count').textContent = `${statsCount(report.models?.length)} modelo(s) observado(s)`;
   $('model-analytics-scope').textContent = report.scope === 'last_10000_requests' ? '10.000' : report.scope || '—';
-  $('model-analytics-period-summary').textContent = `Período ${report.period?.from} → ${report.period?.to}${report.period?.clamped ? ' (limitado a 366 dias)' : ''}${report.totals?.unpriced ? ` · ${statsCount(report.totals.unpriced)} conclusão(ões) sem valor liquidado` : ''} · gerado em ${report.generatedAt}`;
+  $('model-analytics-period-summary').textContent = `Período ${fmtUtc(report.period?.from)} → ${fmtUtc(report.period?.to)}${report.period?.clamped ? ' (limitado a 366 dias)' : ''}${report.totals?.unpriced ? ` · ${statsCount(report.totals.unpriced)} conclusão(ões) sem valor liquidado` : ''} · gerado em ${fmtUtc(report.generatedAt)}`;
   const models = report.models || [];
   const list = $('model-analytics-list'); list.replaceChildren();
   if (!models.length) {
@@ -1652,7 +1658,7 @@ function renderGlobalStats(report) {
   $('global-failures-count').textContent = `${statsCount(report.failures?.attempts)} tentativa(s) · ${statsCount(report.failures?.requests)} requisição(ões)`;
   $('global-spend').textContent = statsAmounts(report.totals?.spend);
   $('global-cost').textContent = `Custo: ${statsAmounts(report.totals?.cost)}${report.totals?.unpriced ? ` · ${statsCount(report.totals.unpriced)} sem preço` : ''}`;
-  const periodText = `Período ${report.period?.from} → ${report.period?.to}${report.period?.clamped ? ' (limitado a 366 dias)' : ''} · até 10.000 requisições · gerado em ${report.generatedAt}`;
+  const periodText = `Período ${fmtUtc(report.period?.from)} → ${fmtUtc(report.period?.to)}${report.period?.clamped ? ' (limitado a 366 dias)' : ''} · até 10.000 requisições · gerado em ${fmtUtc(report.generatedAt)}`;
   $('global-period-summary').textContent = periodText;
   $('global-detail-period-summary').textContent = periodText;
   const status = $('global-status'); status.replaceChildren();
@@ -1852,7 +1858,7 @@ function renderSystem(report) {
   const files = $('system-files'); files.replaceChildren();
   for (const file of storage.dataFiles || []) {
     const tr = document.createElement('tr');
-    for (const value of [file.name, systemMb(file.bytes), file.modifiedAt || '—']) { const td = document.createElement('td'); td.textContent = value; tr.append(td); }
+    for (const value of [file.name, systemMb(file.bytes), fmtUtc(file.modifiedAt)]) { const td = document.createElement('td'); td.textContent = value; tr.append(td); }
     files.append(tr);
   }
   if (!files.childElementCount) { const tr = document.createElement('tr'); const td = document.createElement('td'); td.colSpan = 3; td.className = 'muted'; td.textContent = 'Nenhum arquivo de dados criado ainda.'; tr.append(td); files.append(tr); }

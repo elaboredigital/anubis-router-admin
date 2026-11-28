@@ -1,0 +1,195 @@
+/* Acabamento visual do painel. Carregado depois das outras folhas: define ritmo de espaçamento,
+   tipografia, formulários, menu agrupado e estados vazios, sem mudar a marcação de cada tela. */
+
+:root {
+  --bg: #0f1010;
+  --sidebar: #131414;
+  --panel: #17191a;
+  --surface: #1e2021;
+  --line: #2a2d2c;
+  --line-strong: #3a3e3c;
+  --text: #eeeee9;
+  --muted: #9c9f9a;
+  --faint: #6f736f;
+  --accent: #d1ae71;
+  --accent-soft: rgba(209, 174, 113, .12);
+  --radius: 10px;
+  --radius-sm: 7px;
+  --mono: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, monospace;
+  font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+  scrollbar-color: #3a3e3c transparent;
+}
+body { font-size: 14px; -webkit-font-smoothing: antialiased; }
+::selection { background: rgba(209, 174, 113, .35); }
+
+/* ---------- Menu lateral agrupado ---------- */
+.sidebar { padding: 20px 12px 14px; width: 232px; }
+.sidebar .wordmark { padding: 0 8px 20px; }
+.wordmark img { width: 34px; height: 34px; border-radius: 8px; }
+.navigation { display: block; flex: 1; min-height: 0; overflow-y: auto; margin: 0 -6px; padding: 0 6px; scrollbar-width: thin; }
+.nav-group + .nav-group { margin-top: 16px; }
+.nav-label { font-size: 10.5px; font-weight: 650; letter-spacing: .09em; text-transform: uppercase; color: var(--faint); margin: 0 10px 5px; }
+.nav-item { position: relative; gap: 10px; padding: 7px 10px; border-radius: var(--radius-sm); font-size: 13.5px; font-weight: 500; color: #a4a8a3; transition: background .12s, color .12s; }
+.nav-item + .nav-item { margin-top: 1px; }
+.nav-item:hover { background: #1d1f1e; color: #f2f2ee; }
+.nav-item.active { background: var(--accent-soft); color: #edd5a8; }
+.nav-item.active::before { content: ""; position: absolute; left: -6px; top: 7px; bottom: 7px; width: 3px; border-radius: 0 3px 3px 0; background: var(--accent); }
+.nav-icon { width: 17px; height: 17px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; font-size: 0; }
+.nav-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nav-count { line-height: 18px; background: var(--accent); color: #1b160e; }
+.sidebar-bottom { margin-top: 12px; padding-top: 10px; }
+body.client-mode .nav-group + .nav-group { margin-top: 0; }
+
+/* ---------- Topo ---------- */
+.topbar { position: sticky; top: 0; z-index: 5; height: 56px; padding: 0 32px; background: rgba(15, 16, 16, .86); backdrop-filter: blur(10px); }
+.crumb { color: #4f5350; }
+.environment { display: inline-flex; align-items: center; gap: 2px; border: 1px solid var(--line); border-radius: 999px; padding: 4px 11px; font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+.environment .status-dot { margin-right: 6px; box-shadow: 0 0 0 3px rgba(121, 201, 151, .15); }
+
+/* ---------- Página: um ritmo vertical único entre blocos ---------- */
+.page { display: flex; flex-direction: column; gap: 20px; padding: 28px 32px 64px; }
+.page > * { margin-top: 0 !important; margin-bottom: 0 !important; }
+.page-header { align-items: flex-end; padding-bottom: 4px; }
+.page-header h1 { font-size: 25px; margin-bottom: 6px; }
+.page-header p { font-size: 13.5px; max-width: 78ch; }
+.page-header > button, .page-header > div:last-child:not(:first-child) { flex: none; white-space: nowrap; }
+h1, h2, h3 { text-wrap: balance; }
+.two-columns { gap: 20px; align-items: start; }
+.two-columns > * { margin: 0; }
+.two-columns > .panel { height: 100%; }
+
+/* ---------- Painéis ---------- */
+.panel { border-radius: var(--radius); padding: 22px; border-color: var(--line); }
+.panel h2 { font-size: 15px; margin-bottom: 6px; }
+.panel > p.muted, .panel > .muted { font-size: 13px; }
+.panel h3 { font-size: 13.5px; margin: 20px 0 8px; }
+.panel > :last-child { margin-bottom: 0; }
+
+/* ---------- KPIs: colunas conforme a quantidade, linhas sem bordas quebradas ---------- */
+.overview-summary { overflow: hidden; border-radius: var(--radius); gap: 0; }
+.overview-summary > div { border: 0 !important; box-shadow: 1px 0 0 var(--line), 0 1px 0 var(--line); padding: 18px 20px; min-width: 0; }
+.overview-summary:has(> div:nth-child(4):last-child),
+.overview-summary:has(> div:nth-child(8):last-child) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.overview-summary:has(> div:nth-child(5):last-child) { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.overview-summary span { font-size: 12.5px; }
+.overview-summary strong { font-size: 26px; font-weight: 650; letter-spacing: -.02em; margin: 8px 0 4px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.overview-summary small { font-size: 11.5px; line-height: 1.45; }
+.global-kpis-panel .overview-summary { background: var(--bg); }
+@media (max-width: 1150px) {
+  .overview-summary:has(> div:nth-child(4):last-child),
+  .overview-summary:has(> div:nth-child(5):last-child),
+  .overview-summary:has(> div:nth-child(8):last-child) { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+}
+
+/* ---------- Formulários ---------- */
+label { font-size: 12.5px; font-weight: 550; color: #cfd1cb; margin: 16px 0 6px; }
+input:not([type=checkbox]):not([type=radio]), select, textarea {
+  color: var(--text); background: #121313; border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
+  padding: 9px 11px; min-height: 38px; font: inherit; transition: border-color .12s, box-shadow .12s;
+}
+textarea { display: block; width: 100%; min-height: 84px; resize: vertical; line-height: 1.5; }
+input:not([type=checkbox]):not([type=radio]):hover, select:hover, textarea:hover { border-color: #4a4e4b; }
+input:not([type=checkbox]):not([type=radio]):focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(209, 174, 113, .18);
+}
+select:not([multiple]) {
+  appearance: none; padding-right: 32px; background-repeat: no-repeat; background-position: right 11px center;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239c9f9a' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}
+input[type=checkbox], input[type=radio] { accent-color: var(--accent); width: 15px; height: 15px; margin: 0; flex: none; }
+.checkbox { margin: 14px 0 0; gap: 9px; font-size: 13px; color: #d3d5cf; }
+.search-wrap { border-color: var(--line-strong); background: #121313; border-radius: var(--radius-sm); }
+.search-wrap:focus-within { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(209, 174, 113, .18); }
+.search-wrap input:not([type=checkbox]) { box-shadow: none !important; min-height: 36px; }
+
+/* Filtros de período: rótulo, campo e botões na mesma linha de base. */
+.usage-period { align-items: center; gap: 8px 10px; }
+.usage-period label { margin: 0; font-size: 12px; font-weight: 500; color: var(--muted); }
+.usage-period input[type=date] { width: auto; }
+.usage-period .form-message { margin: 0; }
+.usage-period .checkbox { margin: 0; }
+
+/* ---------- Botões ---------- */
+.primary, .secondary { border-radius: var(--radius-sm); min-height: 36px; padding: 8px 14px; font-size: 13px; white-space: nowrap; transition: background .12s, border-color .12s, color .12s; }
+.primary { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18); }
+.primary:hover:not(:disabled) { background: #e2c38d; border-color: #e2c38d; }
+.secondary { background: #1d1f1f; border-color: var(--line-strong); }
+.secondary:hover:not(:disabled) { background: #272a29; border-color: #4d514e; }
+.primary:active:not(:disabled), .secondary:active:not(:disabled) { transform: translateY(1px); }
+/* Botões lado a lado em formulários sem flex ficavam colados. */
+.panel form > button + button, .panel > button + button, .route-group > button + button { margin-left: 8px; }
+:is(.usage-period, .referral-form, .user-form, .plan-actions, .form-actions, .client-area-access, .client-area-stats-filter, .client-area-key-create, .tr-actions, .mp-tools, .readiness-policy, .password-actions, .chat-actions) > button + button { margin-left: 0; }
+
+/* ---------- Mensagens e avisos ---------- */
+.form-message:empty, .notice:empty, [role=status]:empty, [role=alert]:empty { display: none !important; }
+.form-message { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 12.5px; min-height: 0; }
+.notice { background: rgba(209, 174, 113, .06); border: 1px solid rgba(209, 174, 113, .2); border-left: 3px solid var(--accent); border-radius: var(--radius-sm); color: #cdb994; font-size: 13px; line-height: 1.55; padding: 12px 14px; }
+.empty { border-color: var(--line-strong); border-radius: var(--radius); color: var(--muted); font-size: 13px; }
+
+/* ---------- Código: em linha por padrão; em bloco só onde é um valor para copiar ---------- */
+code { display: inline; margin: 0; font-family: var(--mono); font-size: .92em; color: #e5c487; overflow-wrap: anywhere; }
+.api-address code, .api-key-block code { display: block; margin-top: 7px; }
+pre { font-family: var(--mono); }
+
+/* ---------- Tabelas ---------- */
+.data-table { font-size: 12.5px; }
+.data-table th { font-size: 10.5px; font-weight: 650; letter-spacing: .07em; color: var(--faint); padding: 9px 8px; white-space: nowrap; }
+.data-table td { padding: 10px 8px; border-bottom-color: #232625; }
+.data-table tbody tr:hover td { background: rgba(255, 255, 255, .018); }
+.data-table tr:last-child td { border-bottom: 0; }
+
+/* Linhas de lista (rotas, planos, conexões, usuários) com respiro uniforme. */
+.route, .plan-row, .connection, .user-row, .referral-row, .pending-row { gap: 12px; }
+.user-row { padding-left: 8px; padding-right: 8px; border-radius: var(--radius-sm); }
+.user-row:hover { background: #1c1e1e; }
+.user-row.selected { background: var(--accent-soft); }
+
+/* ---------- Abas de fornecedores e cartões de modelo ---------- */
+.provider-tabs { gap: 2px; scrollbar-width: thin; }
+.provider-tab { padding: 10px 12px; font-size: 13px; }
+.model-card, .tool-card { border-radius: var(--radius); transition: border-color .12s; }
+
+/* ---------- Login ---------- */
+.login-screen { background: radial-gradient(60rem 30rem at 50% -10%, rgba(209, 174, 113, .09), transparent 70%), var(--bg); }
+.login-box { border-radius: 14px; padding: 34px 32px; box-shadow: 0 30px 80px rgba(0, 0, 0, .45); }
+.login-box .wordmark { margin-bottom: 28px; }
+.login-box h1 { font-size: 22px; }
+.login-box label:first-of-type { margin-top: 22px; }
+
+.password-dialog { border-radius: 14px; box-shadow: 0 30px 80px rgba(0, 0, 0, .5); }
+
+/* ---------- Responsivo: menu vira trilho de ícones ---------- */
+@media (max-width: 850px) {
+  .sidebar { width: 60px; padding: 16px 8px; }
+  .sidebar .wordmark { padding: 0 3px 16px; justify-content: center; }
+  .nav-text, .sidebar .nav-label { display: none; }
+  .nav-group + .nav-group { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+  .nav-item { justify-content: center; padding: 10px; font-size: 13.5px; }
+  .nav-icon { width: 19px; height: 19px; }
+  .nav-item.active::before { left: -8px; }
+  .nav-count { position: absolute; top: 2px; right: 0; min-width: 16px; padding: 0 4px; line-height: 16px; font-size: 10px; }
+  .page { padding: 22px 20px 56px; }
+  .topbar { padding: 0 20px; }
+}
+@media (max-width: 580px) {
+  .sidebar { width: 52px; padding: 14px 5px; }
+  .page { padding: 20px 14px 48px; gap: 16px; }
+  .page-header { align-items: flex-start; }
+  .panel { padding: 18px 16px; }
+  .overview-summary strong { font-size: 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+
+/* Ajustes finos após conferir as telas. */
+.usage-period > button, .usage-period > .secondary, .usage-period > .primary { margin-top: 0 !important; }
+.global-kpis-panel > .usage-period + p, #global-period-summary { margin: 10px 0 14px; font-size: 12px; }
+.global-kpis-head { margin-bottom: 14px; }
+.panel .usage-period { margin: 14px 0 6px; }
+.panel .usage-period ~ p.muted { font-size: 12px; }
+.page[data-page="client-area"] .client-area-access input[type=checkbox] { min-width: 0; width: 15px; }
+.page[data-page="client-area"] .client-area-access .checkbox { margin: 0; }
+@media (max-width: 580px) {
+  .environment, .admin-crumb { display: none; }
+}
